@@ -67,13 +67,13 @@ máquina.
 
 ### Proteções contra bloqueio do Instagram
 
-O Instagram barra contas que apresentam padrão automatizado. O programa tem três
+O Instagram barra contas que apresentam padrão automatizado. O programa tem quatro
 freios, todos em `fluxo_downloads.py`:
 
 | Freio | Valor | O que faz |
 |---|---|---|
-| Limite diário | 12 por conta | Para de falar com o Instagram ao atingir |
-| Pausa entre chamadas | 45 a 120 segundos | Espaça as tentativas |
+| Limite diário | 20 por conta | Para de falar com o Instagram ao atingir |
+| Pausa entre chamadas | 20 a 45 segundos | Espaça as tentativas |
 | Máximo por rodada | 3 | Evita rajada |
 | Pausa após bloqueio | 24 horas | Ao detectar bloqueio, para de insistir |
 

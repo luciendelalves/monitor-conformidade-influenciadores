@@ -1,0 +1,47 @@
+# Cores do design system do EGB (contexto/design-system.html): navy
+# institucional, ciano de destaque, cinzas da mesma família. Manter em sincronia
+# com estilo.py, que aplica o restante (tipografia, cartões, espaçamento).
+#
+# Para deixar o programa escuro, troque base para "dark" e inverta
+# backgroundColor com textColor.
+
+[theme]
+base = "light"
+primaryColor = "#00BFFF"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F3F4F6"
+textColor = "#111827"
+
+[server]
+# Sem isso, salvar um arquivo do projeto durante um lote derruba o lote em
+# andamento: o Streamlit recarrega os módulos e os processos de análise perdem
+# a referência da função que estavam executando.
+fileWatcherType = "none"
+runOnSave = false
+
+# Só a própria máquina alcança a tela (29/08/2026).
+#
+# Por padrão o Streamlit escuta em todas as interfaces de rede, e ao subir ele
+# mostrou também um endereço da rede local e um externo. Isso quer dizer que
+# qualquer pessoa que alcance a máquina abre esta tela, e hoje NÃO EXISTE
+# LOGIN: quem abrir usa as credenciais do Google que estão aqui, que são de
+# uma pessoa física e de escopo amplo (drive.readonly e spreadsheets, que
+# alcançam tudo o que aquela conta enxerga).
+#
+# Enquanto o programa roda em máquina de trabalho, para teste, o certo é não
+# escutar a rede nenhuma.
+#
+# ATENÇÃO AO SUBIR NO SERVIDOR: com esta linha, ninguém de fora do servidor
+# abre a tela, e é isso mesmo que se quer até o login existir. Para as cinco
+# pessoas do Marketing usarem, a ordem é: primeiro o login, depois abrir o
+# endereço. Abrir o endereço antes é entregar as credenciais para a rede
+# inteira. Ver o Checklist_Subir_App_No_Servidor.html.
+address = "127.0.0.1"
+
+# Proteção contra pedido forjado vindo de outro site. Já é o padrão do
+# Streamlit; fica escrito para ninguém desligar sem saber o que está fazendo.
+enableXsrfProtection = true
+enableCORS = true
+
+[browser]
+gatherUsageStats = false

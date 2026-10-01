@@ -1,0 +1,204 @@
+# Dependências do programa de auditoria de influenciadores
+# Versões travadas em 30/08/2026, medidas no ambiente que estava funcionando.
+#
+# COMO ESTA LISTA FOI FEITA
+#
+# Lendo os imports dos 41 arquivos .py que estão no repositório, e não com
+# `pip freeze`. O ambiente desta máquina tem 117 pacotes, muitos de outras
+# auditorias e de experimentos, e levar todos para o servidor seria carregar
+# lixo junto.
+#
+# INSTALAR
+#
+#     py -m pip install -r requirements.txt
+#
+# ------------------------------------------------------------------
+# Interface
+# ------------------------------------------------------------------
+streamlit==1.59.2
+pandas==3.0.3
+
+# Login com conta da empresa. ACRESCENTADO EM 31/08/2026, e faltava.
+#
+# COMO PASSOU BATIDO: esta lista foi feita lendo os imports dos arquivos .py, e
+# nenhum arquivo nosso importa authlib. Quem depende dela é o próprio Streamlit,
+# por dentro do st.login (ver is_authlib_installed em streamlit/auth_util.py,
+# que exige 1.3.2 ou mais nova e tem erro próprio para a falta).
+#
+# POR QUE IMPORTA: sem ela o login não sobe, mesmo com o secrets.toml correto e
+# a credencial registrada no provedor. Medido em 31/08/2026 nesta máquina, onde
+# authlib NÃO estava instalada. O servidor seria montado com esta lista, e a
+# falta apareceria justamente no dia de ligar o login, que é o pior momento.
+#
+# INSTALADA E MEDIDA em 31/08/2026: 1.8.0, e ela trouxe joserfc 1.7.5 junto.
+#
+# A compatibilidade foi conferida, e não presumida, porque a Authlib 1.8
+# reorganizou a parte de assinatura: `authlib.jose` está marcada como
+# descontinuada, com aviso pedindo para usar joserfc. Isso NÃO quebra o
+# Streamlit 1.59.2: ele tenta joserfc primeiro e só usa a API antiga se joserfc
+# faltar (ver encode_provider_token em streamlit/auth_util.py). Como joserfc vem
+# junto, o caminho usado é o novo. Conferido também que a checagem de versão do
+# próprio Streamlit aceita a 1.8.0.
+#
+# Ao atualizar Streamlit ou Authlib, vale reconferir isto: a API antiga é
+# compatível só até a Authlib 2.0, pelo aviso dela mesma.
+#
+# Detalhe do cookie_secret: joserfc avisa quando a chave tem menos de 14 bytes.
+# O procedimento em `acesso.py` gera 32 bytes, bem acima disso.
+Authlib==1.8.0
+
+# FAZ O `ssl` DO PYTHON CONFIAR NO MESMO CERTIFICADO DO WINDOWS, em vez de só
+# na lista embutida (certifi). ACRESCENTADO EM 16/09/2026, achado na
+# instalação da Responsável A: o login (via Authlib, que usa httpx por
+# baixo) falhava sempre com `CERTIFICATE_VERIFY_FAILED: self-signed
+# certificate in certificate chain`, porque a rede da empresa tem inspeção
+# de HTTPS (mesma classe de problema já documentada abaixo pro curl_cffi) e
+# o Windows já confia no certificado que ela usa, mas o httpx não. Ligado em
+# painel.py, bem no topo do arquivo, antes de qualquer chamada de rede.
+truststore==0.10.4
+
+# ------------------------------------------------------------------
+# Download de vídeo
+# ------------------------------------------------------------------
+# ATENÇÃO AO yt-dlp: ele é a peça que persegue as mudanças do Instagram, que
+# muda sem avisar. Uma versão travada por muito tempo PARA DE FUNCIONAR, e o
+# sintoma é download falhando sem motivo aparente.
+#
+# Está travado mesmo assim, de propósito: o programa produz evidência de
+# auditoria, e reproduzir o ambiente que gerou um resultado importa. Mas a
+# atualização precisa ser ato consciente e frequente:
+#
+#     py -m pip install --upgrade yt-dlp
+#     (e depois atualizar a versão aqui, com a data)
+#
+# Ao atualizar, rode antes: py testes\teste_download_em_duas_etapas.py
+# Atualizado em 09/09/2026 (estava em 04/07, 68 dias, acima do limite de 45).
+# Testado com teste_download_em_duas_etapas.py antes de gravar aqui: passou.
+yt-dlp==2026.8.19
+
+# Faz o yt-dlp se apresentar como navegador de verdade, o que reduz a chance
+# de ser reconhecido como script. Sem ele o programa funciona igual, só mais
+# exposto (ver opcoes_de_disfarce em fluxo_downloads.py).
+#
+# NÃO FUNCIONA EM REDE COM INSPEÇÃO DE HTTPS: ele traz a própria lista de
+# autoridades certificadoras e recusa o certificado da empresa. Medido em
+# 29/08/2026 nesta rede. O programa recua sozinho quando isso acontece.
+#
+# TENTATIVA DE NÃO PRECISAR RECUAR, DESDE 21/09/2026: o programa monta um
+# pacote de certificados próprio, somando os do Windows desta máquina aos
+# públicos (ver _ca_bundle_com_repositorio_windows em fluxo_downloads.py), e
+# aponta o curl_cffi para ele pela variável CURL_CA_BUNDLE. Precisa do
+# certifi, abaixo, para ler a lista pública.
+curl_cffi==0.15.0
+
+# Lista pública de certificados, usada para montar o pacote acima.
+# ACRESCENTADO EM 21/09/2026: já vinha instalado por outra dependência (é
+# assim que passou batido desta lista antes), mas agora é importado direto
+# em fluxo_downloads.py, então precisa estar aqui.
+certifi==2026.06.17
+
+# Caminho antigo de Story, mantido como reserva. Desde 29/08/2026 o yt-dlp
+# resolve Story sem precisar do número interno do perfil, e o instaloader só
+# entra se aquele caminho falhar.
+instaloader==4.15.3
+
+# ------------------------------------------------------------------
+# Leitura de texto na imagem, os três degraus da escada
+# ------------------------------------------------------------------
+pytesseract==0.3.13
+rapidocr-onnxruntime==1.2.3
+easyocr==1.7.2
+
+# ------------------------------------------------------------------
+# Transcrição de áudio
+# ------------------------------------------------------------------
+faster-whisper==1.2.1
+
+# ------------------------------------------------------------------
+# Imagem e cálculo
+# ------------------------------------------------------------------
+pillow==12.3.0
+numpy==2.5.1
+
+# OS DOIS PACOTES DO OPENCV, E ISSO NÃO É DESCUIDO.
+#
+# CORRIGIDO EM 07/09/2026. O texto que estava aqui mandava instalar só o
+# headless no servidor. Isso não é possível, e a instrução ia falhar em silêncio
+# justamente lá: o rapidocr-onnxruntime declara opencv-python como dependência
+# dele e o easyocr declara opencv-python-headless. Conferido nesta máquina, nos
+# metadados dos dois pacotes. São dois dos três motores de leitura de texto, os
+# dois são obrigatórios, e o pip traz os dois de volta em qualquer instalação.
+#
+# POR ISSO OS DOIS ESTÃO TRAVADOS AQUI, NA MESMA VERSÃO, e é assim que precisa
+# ficar. Eles gravam os arquivos na MESMA pasta cv2, então quem instala por
+# último sobrescreve o outro. Com a mesma versão isso é inofensivo, os arquivos
+# são equivalentes. Com versões diferentes fica um cv2 montado com metade de
+# cada, e o sintoma é erro ao carregar a biblioteca, sem nada dizendo que a causa
+# é a mistura. AO ATUALIZAR UM, ATUALIZE O OUTRO NA MESMA HORA.
+#
+# O verificar_ambiente.py confere a igualdade das duas versões, e só reclama
+# quando elas divergem.
+#
+# Qual dos dois vence não muda resultado: o programa chama só cv2.imread e
+# cv2.Laplacian (leitura de imagem e cálculo de nitidez, em
+# validar_avisos_portaria136.py). A parte de janela e tela que o headless não
+# traz nunca é usada.
+opencv-python==5.0.0.93
+opencv-python-headless==5.0.0.93
+
+# ------------------------------------------------------------------
+# Google Drive e Planilhas
+# ------------------------------------------------------------------
+google-api-python-client==2.198.0
+google-auth==2.56.1
+google-auth-oauthlib==1.4.0
+
+# ------------------------------------------------------------------
+# Planilha em arquivo
+# ------------------------------------------------------------------
+openpyxl==3.1.5
+
+# ==================================================================
+# O QUE NÃO SE INSTALA COM pip, E SEM O QUE O PROGRAMA NÃO RODA
+# ==================================================================
+#
+# Estes são programas e modelos externos. Faltando qualquer um, a análise
+# falha, e é a causa mais provável de "funcionava na minha máquina".
+#
+#   ffmpeg e ffprobe        9.0
+#     Extraem quadro e áudio do vídeo, e medem duração e qualidade.
+#     Nesta máquina vieram pelo WinGet (Gyan.FFmpeg). Em Linux, pelo
+#     gerenciador de pacotes da distribuição.
+#
+#   tesseract               5.4.0
+#     Primeiro degrau da escada de leitura de texto.
+#
+#     PRECISA DO IDIOMA PORTUGUÊS, E ISSO NÃO É DETALHE. O instalador do
+#     Windows traz só inglês, e o Tesseract NÃO reclama quando o idioma pedido
+#     falta: ele cai para o inglês em silêncio. Medido em 30/08/2026, com as
+#     regex de verdade do programa: só com inglês, duas das três frases
+#     obrigatórias do Ministério da Fazenda NUNCA eram encontradas em texto
+#     pequeno ("apostar pode causar dependência" e "apostar faz você perder
+#     dinheiro"). Peça que tem o aviso seria classificada como se não tivesse.
+#
+#     Instalar é copiar um arquivo para a pasta tessdata:
+#         https://github.com/tesseract-ocr/tessdata/raw/main/por.traineddata
+#     Nesta máquina, tessdata fica em
+#         %LOCALAPPDATA%\Programs\Tesseract-OCR\tessdata
+#     Em Linux, costuma ser o pacote tesseract-ocr-por.
+#     Conferir depois com:  tesseract --list-langs   (tem que listar "por")
+#     O verificador de ambiente também acusa quando falta.
+#
+#   ollama, com o modelo minicpm-v
+#     Responde em http://localhost:11434. É o gargalo do programa: 73 a 91
+#     segundos por quadro novo nesta máquina, que é um processador de
+#     notebook de 15W sem placa de vídeo. Com placa dedicada, cai muito.
+#         ollama pull minicpm-v
+#
+#   modelo de transcrição "small"
+#     Baixado sozinho pelo faster-whisper na primeira execução.
+#
+# ATENÇÃO AO MUDAR DE SISTEMA OPERACIONAL: os caminhos do ffmpeg e do
+# tesseract estão fixos em pastas do Windows, dentro de
+# validar_avisos_portaria136.py. Num servidor Linux isso precisa ser ajustado
+# antes de qualquer coisa, senão o programa não sobe.

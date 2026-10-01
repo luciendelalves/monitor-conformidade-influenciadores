@@ -1,0 +1,678 @@
+<title>Anatomia do Programa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+
+<style>
+  :root {
+    --ground:      #FAFBFC;
+    --surface:     #FFFFFF;
+    --surface-alt: #F0F4F8;
+    --line:        #D9E1EA;
+    --line-soft:   #E9EFF4;
+    --ink:         #101C2B;
+    --ink-soft:    #45586E;
+    --ink-faint:   #6C7F94;
+    --navy:        #16293D;
+    --accent:      #0A6E93;
+    --accent-bg:   #E6F2F8;
+
+    --tela:        #7A4BB8;   --tela-bg:      #F0E9F9;
+    --coord:       #0A6E93;   --coord-bg:     #E1EFF6;
+    --motor:       #0E6F5C;   --motor-bg:     #E1F1EC;
+    --acesso:      #9A5A0B;   --acesso-bg:    #FAEEDC;
+    --frag:        #97392A;   --frag-bg:      #FAE9E5;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:      #0B131E;
+      --surface:     #111C29;
+      --surface-alt: #162333;
+      --line:        #253748;
+      --line-soft:   #1B2A3A;
+      --ink:         #E7EEF6;
+      --ink-soft:    #AEC0D2;
+      --ink-faint:   #8194A8;
+      --navy:        #CEDCEA;
+      --accent:      #52BADD;
+      --accent-bg:   #10303E;
+
+      --tela:        #BFA3E8;  --tela-bg:      #251C36;
+      --coord:       #52BADD;  --coord-bg:     #0F2E3B;
+      --motor:       #5AC9AC;  --motor-bg:     #0F302A;
+      --acesso:      #E5AA52;  --acesso-bg:    #322510;
+      --frag:        #E98D7B;  --frag-bg:      #341B16;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground:      #0B131E;
+    --surface:     #111C29;
+    --surface-alt: #162333;
+    --line:        #253748;
+    --line-soft:   #1B2A3A;
+    --ink:         #E7EEF6;
+    --ink-soft:    #AEC0D2;
+    --ink-faint:   #8194A8;
+    --navy:        #CEDCEA;
+    --accent:      #52BADD;
+    --accent-bg:   #10303E;
+
+    --tela:        #BFA3E8;  --tela-bg:      #251C36;
+    --coord:       #52BADD;  --coord-bg:     #0F2E3B;
+    --motor:       #5AC9AC;  --motor-bg:     #0F302A;
+    --acesso:      #E5AA52;  --acesso-bg:    #322510;
+    --frag:        #E98D7B;  --frag-bg:      #341B16;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .pagina {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: clamp(1.5rem, 4vw, 3.5rem) clamp(1rem, 3vw, 2rem) 6rem;
+  }
+
+  /* ---------- topo ---------- */
+  header.topo {
+    display: flex; flex-direction: column; gap: 0.9rem;
+    padding-bottom: 1.8rem; margin-bottom: 2rem;
+    border-bottom: 3px solid var(--navy);
+  }
+  .eyebrow {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+    font-weight: 500; color: var(--accent);
+  }
+  h1 {
+    font-size: clamp(1.9rem, 5vw, 2.7rem); font-weight: 700; line-height: 1.1;
+    letter-spacing: -0.02em; margin: 0; color: var(--navy); text-wrap: balance;
+  }
+  .resumo { font-size: 1.05rem; color: var(--ink-soft); max-width: 70ch; margin: 0; }
+
+  .numeros {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1px; background: var(--line); border: 1px solid var(--line);
+    border-radius: 4px; overflow: hidden; margin-top: 0.6rem;
+  }
+  .numeros div { background: var(--surface); padding: 0.75rem 0.9rem; }
+  .numeros .n {
+    font-family: "IBM Plex Mono", monospace; font-size: 1.35rem; font-weight: 600;
+    color: var(--navy); font-variant-numeric: tabular-nums; line-height: 1.1;
+  }
+  .numeros .r {
+    font-size: 0.68rem; letter-spacing: 0.07em; text-transform: uppercase;
+    color: var(--ink-faint); font-weight: 600; margin-top: 0.2rem;
+  }
+
+  /* ---------- corpo em duas colunas ---------- */
+  .corpo { display: grid; grid-template-columns: 210px 1fr; gap: 3rem; align-items: start; }
+  @media (max-width: 900px) { .corpo { grid-template-columns: 1fr; gap: 1.5rem; } }
+
+  nav.indice { position: sticky; top: 1.5rem; font-size: 0.88rem; }
+  @media (max-width: 900px) {
+    nav.indice {
+      position: static; background: var(--surface-alt); padding: 1rem 1.2rem;
+      border-radius: 4px; border: 1px solid var(--line);
+    }
+  }
+  nav.indice ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.05rem; }
+  nav.indice a {
+    display: block; padding: 0.3rem 0 0.3rem 0.7rem; color: var(--ink-soft);
+    text-decoration: none; border-left: 2px solid var(--line);
+  }
+  nav.indice a:hover, nav.indice a:focus-visible {
+    color: var(--accent); border-left-color: var(--accent); background: var(--accent-bg);
+  }
+  nav.indice .num {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.75rem;
+    color: var(--ink-faint); margin-right: 0.4rem;
+  }
+
+  main { display: flex; flex-direction: column; gap: 3rem; min-width: 0; }
+  section { display: flex; flex-direction: column; gap: 1rem; scroll-margin-top: 1.5rem; }
+
+  h2 {
+    font-size: 1.45rem; font-weight: 700; margin: 0; color: var(--navy);
+    letter-spacing: -0.01em; text-wrap: balance;
+    display: flex; align-items: baseline; gap: 0.7rem;
+  }
+  h2 .marca {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.85rem; font-weight: 500;
+    color: var(--accent); flex-shrink: 0;
+  }
+  h3 { font-size: 1.02rem; font-weight: 600; margin: 0.6rem 0 0; color: var(--ink); }
+
+  p { margin: 0; max-width: 72ch; }
+  p + p { margin-top: 0.4rem; }
+  ul { margin: 0; padding-left: 1.2rem; max-width: 72ch; }
+  li { margin-bottom: 0.28rem; }
+  li::marker { color: var(--accent); }
+  strong { font-weight: 600; }
+
+  code {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.87em;
+    background: var(--surface-alt); border: 1px solid var(--line-soft);
+    border-radius: 3px; padding: 0.08em 0.35em;
+  }
+
+  pre {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.82rem; line-height: 1.55;
+    background: var(--surface-alt); border: 1px solid var(--line);
+    border-radius: 4px; padding: 1rem 1.1rem; overflow-x: auto; margin: 0;
+    color: var(--ink-soft);
+  }
+  pre b { color: var(--ink); font-weight: 600; }
+
+  /* ---------- fichas de arquivo ---------- */
+  .arquivos { display: flex; flex-direction: column; gap: 0.7rem; }
+  .arq {
+    background: var(--surface); border: 1px solid var(--line);
+    border-left: 3px solid var(--cor, var(--accent));
+    border-radius: 4px; padding: 0.85rem 1.05rem;
+    display: flex; flex-direction: column; gap: 0.35rem;
+  }
+  .arq.tela   { --cor: var(--tela); }
+  .arq.coord  { --cor: var(--coord); }
+  .arq.motor  { --cor: var(--motor); }
+  .arq.acesso { --cor: var(--acesso); }
+
+  .arq .cabeca { display: flex; align-items: baseline; gap: 0.6rem; flex-wrap: wrap; }
+  .arq .nome {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.92rem; font-weight: 600;
+    color: var(--ink);
+  }
+  .arq .linhas {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.72rem;
+    color: var(--ink-faint); font-variant-numeric: tabular-nums;
+  }
+  .arq p { font-size: 0.94rem; color: var(--ink-soft); max-width: none; }
+  .arq .grifo { color: var(--ink); }
+
+  /* ---------- tabelas ---------- */
+  .rolagem { overflow-x: auto; border: 1px solid var(--line); border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; min-width: 520px; background: var(--surface); }
+  th {
+    text-align: left; font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink-faint); font-weight: 600; padding: 0.6rem 0.85rem;
+    background: var(--surface-alt); border-bottom: 1px solid var(--line); white-space: nowrap;
+  }
+  td { padding: 0.6rem 0.85rem; border-bottom: 1px solid var(--line-soft); vertical-align: top; font-size: 0.9rem; }
+  tr:last-child td { border-bottom: 0; }
+  td.mono { font-family: "IBM Plex Mono", monospace; font-size: 0.83rem; font-variant-numeric: tabular-nums; }
+
+  /* ---------- destaques ---------- */
+  .caixa {
+    border-radius: 4px; padding: 0.95rem 1.15rem; font-size: 0.94rem;
+    border: 1px solid var(--line); background: var(--accent-bg); color: var(--ink-soft);
+  }
+  .caixa strong { color: var(--ink); }
+  .caixa.fragil { background: var(--frag-bg); border-color: var(--frag); }
+  .caixa p { max-width: none; }
+
+  .etiqueta {
+    display: inline-block; font-family: "IBM Plex Mono", monospace;
+    font-size: 0.66rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
+    padding: 0.14rem 0.45rem; border-radius: 3px;
+  }
+  .etiqueta.tela   { color: var(--tela);   background: var(--tela-bg); }
+  .etiqueta.coord  { color: var(--coord);  background: var(--coord-bg); }
+  .etiqueta.motor  { color: var(--motor);  background: var(--motor-bg); }
+  .etiqueta.acesso { color: var(--acesso); background: var(--acesso-bg); }
+  .etiqueta.frag   { color: var(--frag);   background: var(--frag-bg); }
+
+  footer.rodape {
+    margin-top: 4rem; padding-top: 1.2rem; border-top: 2px solid var(--line);
+    font-size: 0.85rem; color: var(--ink-faint);
+    display: flex; flex-direction: column; gap: 0.35rem;
+  }
+
+  a { color: var(--accent); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<div class="pagina">
+
+<header class="topo">
+  <span class="eyebrow">Auditoria Interna EGB &middot; Guia de arquitetura &middot; v1.0, 29/08/2026</span>
+  <h1>Anatomia do programa de auditoria de influenciadores</h1>
+  <p class="resumo">
+    O que cada arquivo faz, por que está separado assim, e onde mexer quando algo
+    precisar mudar. Escrito para quem nunca viu o código, incluindo você mesmo daqui
+    a seis meses.
+  </p>
+  <div class="numeros">
+    <div><div class="n">8.094</div><div class="r">linhas ao todo</div></div>
+    <div><div class="n">4.193</div><div class="r">de código</div></div>
+    <div><div class="n">2.702</div><div class="r">de explicação</div></div>
+    <div><div class="n">4.308</div><div class="r">sem Streamlit</div></div>
+    <div><div class="n">2</div><div class="r">programas a subir</div></div>
+  </div>
+</header>
+
+<div class="corpo">
+
+<nav class="indice" aria-label="Índice">
+  <ol>
+    <li><a href="#mapa"><span class="num">01</span>O mapa</a></li>
+    <li><a href="#duas"><span class="num">02</span>As duas metades</a></li>
+    <li><a href="#tela"><span class="num">03</span>Camada de tela</a></li>
+    <li><a href="#coord"><span class="num">04</span>Camada de coordenação</a></li>
+    <li><a href="#motor"><span class="num">05</span>Camada de trabalho</a></li>
+    <li><a href="#acesso"><span class="num">06</span>Camada de acesso</a></li>
+    <li><a href="#ferramentas"><span class="num">07</span>Ferramentas avulsas</a></li>
+    <li><a href="#caminho"><span class="num">08</span>O caminho de um vídeo</a></li>
+    <li><a href="#estranhas"><span class="num">09</span>Decisões que parecem estranhas</a></li>
+    <li><a href="#ondemexer"><span class="num">10</span>Onde mexer</a></li>
+    <li><a href="#fragil"><span class="num">11</span>O que está frágil</a></li>
+    <li><a href="#numeros"><span class="num">12</span>Números medidos</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<section id="mapa">
+  <h2><span class="marca">01</span>O mapa</h2>
+  <p>
+    São <strong>dois programas separados</strong>, e os dois precisam estar no ar. A
+    separação é de 29/08/2026 e é o que permite mais de uma pessoa usar ao mesmo tempo.
+  </p>
+  <pre><b>TELA</b> (Streamlit)                    <b>TRABALHADOR</b> (processo próprio)
+  aba Downloads            ─┐
+  aba Validação Regulatória ├─ fila em disco ──▶  baixa E analisa
+  aba Monitoramento        ─┘                     (os dois ao mesmo tempo)
+
+        só enfileira                        2 análises simultâneas
+        e mostra                            1 download por vez</pre>
+  <p>
+    A tela nunca faz trabalho pesado. Ela põe tarefa numa fila gravada em disco, e o
+    trabalhador consome. Fechar o navegador não interrompe nada.
+  </p>
+  <div class="caixa">
+    <strong>Por que um trabalhador só.</strong> O modelo de visão é um servidor único
+    compartilhado, e o Instagram conta chamadas por conta e por endereço de rede. Mais
+    processos não produzem mais: só distribuem a mesma capacidade entre mais gente
+    esperando, e furam o teto de chamadas sem ninguém perceber.
+  </div>
+</section>
+
+<section id="duas">
+  <h2><span class="marca">02</span>As duas metades, e por que isso importa</h2>
+  <p>
+    O código se divide em <strong>lógica</strong> e <strong>tela</strong>, e a divisão é
+    real, não aspiracional:
+  </p>
+  <div class="rolagem">
+    <table>
+      <thead><tr><th>Metade</th><th>Linhas</th><th>Depende do Streamlit?</th></tr></thead>
+      <tbody>
+        <tr><td>Lógica (motor, coordenação, acesso)</td><td class="mono">4.308</td><td>não, nenhuma linha</td></tr>
+        <tr><td>Tela</td><td class="mono">1.322</td><td>sim</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    Consequência prática: <strong>trocar de interface significa reescrever as telas, não
+    o programa.</strong> Se um dia isso virar Django, as 4.308 linhas que fazem o
+    trabalho continuam iguais.
+  </p>
+  <p>
+    Consequência do dia a dia: dá para testar qualquer coisa pela linha de comando, sem
+    abrir a tela. É assim que se depura.
+  </p>
+</section>
+
+<section id="tela">
+  <h2><span class="marca">03</span><span class="etiqueta tela">Tela</span> O que a pessoa vê</h2>
+  <div class="arquivos">
+    <div class="arq tela">
+      <div class="cabeca"><span class="nome">painel.py</span><span class="linhas">50 linhas</span></div>
+      <p>Porta de entrada. Não faz trabalho nenhum: dá nome às três abas e aplica a
+      identidade visual. A configuração da página mora só aqui, porque o Streamlit
+      aceita essa chamada uma vez só.</p>
+    </div>
+    <div class="arq tela">
+      <div class="cabeca"><span class="nome">app_validacao_influenciadores.py</span><span class="linhas">517 linhas</span></div>
+      <p>Aba <span class="grifo">Validação Regulatória</span>. Mostra a cobertura, deixa
+      escolher quais vídeos analisar, enfileira, e acompanha. O acompanhamento se atualiza
+      sozinho sem redesenhar a página inteira, porque redesenhar leria a planilha de novo
+      a cada 5 segundos, vezes cinco pessoas.</p>
+    </div>
+    <div class="arq tela">
+      <div class="cabeca"><span class="nome">pages/1_Downloads_e_Organizacao.py</span><span class="linhas">538 linhas</span></div>
+      <p>Aba <span class="grifo">Downloads</span>. Três caminhos de entrada: colar link na
+      fila, registrar link sem baixar (live e YouTube, grandes demais), e enviar arquivo
+      que a pessoa já baixou. O terceiro é o que escala para muita gente.</p>
+    </div>
+    <div class="arq tela">
+      <div class="cabeca"><span class="nome">pages/2_Monitoramento.py</span><span class="linhas">258 linhas</span></div>
+      <p>Aba <span class="grifo">Monitoramento</span>. Só leitura da planilha, com filtro e
+      cor por situação. Não altera nada.</p>
+    </div>
+    <div class="arq tela">
+      <div class="cabeca"><span class="nome">identidade.py</span><span class="linhas">98 linhas</span></div>
+      <p>Quem está usando. <span class="grifo">Não é login</span>: é nome declarado, sem
+      senha e sem verificação. Existe porque, num servidor, o usuário do computador é o
+      mesmo para as cinco pessoas, e sem distinguir não dá para separar "tirar da fila o
+      que eu mandei" de "tirar o que todo mundo mandou".</p>
+    </div>
+    <div class="arq tela">
+      <div class="cabeca"><span class="nome">painel_trabalhador.py</span><span class="linhas">66 linhas</span></div>
+      <p>Bloco compartilhado que avisa se o trabalhador está no ar. Fica num arquivo só
+      porque o aviso precisa ser idêntico nas duas abas que dependem dele.</p>
+    </div>
+    <div class="arq tela">
+      <div class="cabeca"><span class="nome">estilo.py</span><span class="linhas">245 linhas</span></div>
+      <p>Identidade visual do EGB. Cores e fontes vêm do design system, não foram
+      escolhidas no programa.</p>
+    </div>
+  </div>
+</section>
+
+<section id="coord">
+  <h2><span class="marca">04</span><span class="etiqueta coord">Coordenação</span> Quem organiza o trabalho</h2>
+  <p>Esta camada nasceu inteira em 29/08/2026. Antes dela, o trabalho vivia dentro da aba do navegador.</p>
+  <div class="arquivos">
+    <div class="arq coord">
+      <div class="cabeca"><span class="nome">trabalhador.py</span><span class="linhas">277 linhas</span></div>
+      <p>O único processo que executa. Mantém um grupo de 2 processos de análise sempre de
+      pé, porque carregar o modelo de visão leva perto de dois minutos e não pode ser pago
+      a cada vídeo. O download roda numa linha de execução própria, em paralelo, já que ele
+      passa quase todo o tempo esperando rede e pausas.</p>
+    </div>
+    <div class="arq coord">
+      <div class="cabeca"><span class="nome">fila_trabalho.py</span><span class="linhas">435 linhas</span></div>
+      <p>A fila, gravada em disco: uma pasta por situação (pendente, rodando, concluída,
+      falha) e um arquivo por tarefa. Mudar de situação é mover o arquivo, que o sistema faz
+      de uma vez só. Sem banco de dados, de propósito: para cinco pessoas isso basta, e o
+      dia que não bastar troca-se só este arquivo.</p>
+    </div>
+    <div class="arq coord">
+      <div class="cabeca"><span class="nome">trava.py</span><span class="linhas">172 linhas</span></div>
+      <p>Impede dois processos de gravarem o mesmo arquivo ao mesmo tempo. <span class="grifo">Medido
+      em 29/08/2026: sem ela, 115 de 240 gravações concorrentes se perdiam, 48%.</span> O que se
+      perdia era o contador de chamadas do Instagram, ou seja, o freio deixava de existir sem
+      dar erro na tela.</p>
+      <p>Traz também o conserto de um detalhe do Windows: trocar um arquivo pelo outro falha
+      se alguém estiver lendo, mesmo só lendo. No Linux isso não acontece.</p>
+    </div>
+  </div>
+</section>
+
+<section id="motor">
+  <h2><span class="marca">05</span><span class="etiqueta motor">Trabalho</span> Onde as coisas acontecem</h2>
+  <div class="arquivos">
+    <div class="arq motor">
+      <div class="cabeca"><span class="nome">fluxo_downloads.py</span><span class="linhas">2.079 linhas</span></div>
+      <p>Baixa e organiza. É o arquivo mais importante e o mais problemático: <span class="grifo">faz
+      cinco coisas</span> que deveriam estar separadas.</p>
+      <ul>
+        <li>Baixar de Instagram, YouTube e TikTok, com Story tratado à parte</li>
+        <li>Organizar no Drive, nomeando pastas por influenciador, bet, ano e mês</li>
+        <li>Escrever a linha na Monitoramento</li>
+        <li>O freio do Instagram: teto diário, pausa entre chamadas, recuo após bloqueio</li>
+        <li>A fila de links, lida de uma planilha</li>
+      </ul>
+      <p>Quebrar isso em cinco arquivos não reduz linha nenhuma, mas reduz o risco de mexer
+      numa parte e quebrar outra.</p>
+    </div>
+    <div class="arq motor">
+      <div class="cabeca"><span class="nome">validar_avisos_portaria136.py</span><span class="linhas">1.373 linhas</span></div>
+      <p>O motor de análise. Recebe arquivos e devolve classificação.</p>
+      <p>A leitura de texto é uma <span class="grifo">escada de três degraus</span>, do mais
+      rápido ao mais lento, que para assim que acha tudo o que a data exige: Tesseract (1,5s
+      por quadro), RapidOCR (5,9s) e EasyOCR (11,3s). Só depois disso, e só para o que faltou,
+      entra o modelo de visão. O áudio é transcrito à parte, e custa cerca de 1,6 vez a
+      duração do vídeo.</p>
+    </div>
+    <div class="arq motor">
+      <div class="cabeca"><span class="nome">pipeline_influenciadores.py</span><span class="linhas">692 linhas</span></div>
+      <p>Amarra as duas pontas: lê a fila da Monitoramento, baixa a mídia do Drive, chama o
+      motor, e escreve o veredito de volta. Também traduz o resultado técnico para o rótulo
+      curto que aparece na planilha.</p>
+    </div>
+    <div class="arq motor">
+      <div class="cabeca"><span class="nome">baixador_local/baixador.py</span><span class="linhas">369 linhas</span></div>
+      <p>Programa à parte, que roda na máquina de cada pessoa. Lê a sessão do Instagram
+      direto do <span class="grifo">Firefox</span>, sem extensão nenhuma. Chrome e Edge não
+      servem: da versão 127 em diante eles cifram os cookies de um jeito que impede a leitura.</p>
+      <p>Não tem credencial da auditoria nenhuma dentro. Só baixa para uma pasta, e a pessoa
+      arrasta os arquivos na tela.</p>
+    </div>
+  </div>
+</section>
+
+<section id="acesso">
+  <h2><span class="marca">06</span><span class="etiqueta acesso">Acesso</span> Como o programa fala com o Google</h2>
+  <p>Quatro clientes, com escopos deliberadamente diferentes. A separação é proteção, não desorganização.</p>
+  <div class="rolagem">
+    <table>
+      <thead><tr><th>Arquivo</th><th>Escopo</th><th>Alcança</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">drive_client.py</td><td class="mono">drive.readonly</td><td>lê tudo que a conta enxerga, inclusive as pastas do Marketing</td></tr>
+        <tr><td class="mono">drive_client_upload.py</td><td class="mono">drive.file</td><td><strong>só o que o próprio programa criou</strong></td></tr>
+        <tr><td class="mono">drive_file_client.py</td><td class="mono">drive.file</td><td>idem, para arquivo avulso</td></tr>
+        <tr><td class="mono">sheets_client.py</td><td class="mono">spreadsheets</td><td>lê e escreve planilhas</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="caixa fragil">
+    <p><strong>Consequência que já mordeu, em 29/08/2026.</strong> Como a escrita usa
+    <code>drive.file</code>, ela <strong>não enxerga pasta criada por pessoa</strong>. Numa
+    prova real, uma pasta <code>@Bahiadohype</code> criada à mão ficou invisível para o
+    programa, que criou uma <code>@bahiadohype</code> ao lado.</p>
+    <p>Isso não é ajuste de código. Enquanto a credencial for essa, o programa nunca vai
+    reaproveitar pasta que ele mesmo não criou. A saída é conta de serviço, com as pastas
+    específicas compartilhadas com ela.</p>
+  </div>
+  <p>
+    Os três arquivos <code>autorizar_*.py</code> geram os tokens, uma vez cada. Eles e os
+    quatro clientes acima são <strong>candidatos naturais a virar um só</strong>: repetem a
+    mesma estrutura e somam 604 linhas onde caberiam 200.
+  </p>
+</section>
+
+<section id="ferramentas">
+  <h2><span class="marca">07</span>Ferramentas avulsas</h2>
+  <div class="rolagem">
+    <table>
+      <thead><tr><th>Arquivo</th><th>Para quê</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">reprocessar_linhas.py</td><td>Manda linhas já validadas voltarem para a fila. Faz as <strong>duas</strong> coisas necessárias: apaga o veredito na planilha e esquece a análise guardada. Esquecer a segunda é o erro fácil, porque tudo parece funcionar e o veredito volta igual.</td></tr>
+        <tr><td class="mono">migrar_tirar_coluna_link_arquivo.py</td><td>Migração pontual de 29/08/2026, que tirou uma coluna repetida da planilha. Fica no repositório como registro do que foi feito.</td></tr>
+        <tr><td class="mono">copiar_historico_para_o_drive.py</td><td>Empacota o histórico do repositório num arquivo só, e <strong>confere que ele é recuperável</strong> antes de dizer que deu certo.</td></tr>
+        <tr><td class="mono">processar_lote_cli.py</td><td><strong>Desatualizado e travado de propósito.</strong> Escreve na planilha antiga e concorre com o trabalhador.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="caminho">
+  <h2><span class="marca">08</span>O caminho de um vídeo, do link ao veredito</h2>
+  <p>A melhor forma de entender o programa é seguir um vídeo inteiro.</p>
+  <pre>1. A pessoa cola o link           <b>pages/1_Downloads_e_Organizacao.py</b>
+   e clica em processar          → cria tarefa em <b>fila_trabalho.py</b>
+
+2. O trabalhador pega a tarefa    <b>trabalhador.py</b>
+   e chama o download            → <b>fluxo_downloads.baixar_video()</b>
+
+3. Confere o freio antes          teto do dia, pausa ativa, conta certa
+   Baixa                          Story vai por um caminho, o resto por outro
+   Sobe pro Drive                 pasta por influenciador, nome no padrão
+   Grava a linha                  Monitoramento, colunas W a AA
+
+4. A linha aparece como pendente  <b>app_validacao_influenciadores.py</b>
+   porque a SITUACAO diz que      lê de <b>pipeline.carregar_monitoramento()</b>
+   há arquivo para conferir
+
+5. A pessoa marca e manda         → cria tarefa em <b>fila_trabalho.py</b>
+
+6. O trabalhador analisa          <b>pipeline.processar_linha()</b>
+   Baixa a mídia do Drive
+   Extrai 3 quadros               espalhados pelo vídeo, não do começo
+   Escada de OCR                  para assim que acha tudo o que a data exige
+   Visão local, só o que faltou   custa 73s a primeira pergunta por quadro
+   Transcreve o áudio             1,6x a duração do vídeo
+   Classifica                     <b>validar_avisos_portaria136.classificar_post()</b>
+
+7. Escreve o veredito             <b>pipeline.gravar_veredito()</b>
+   só em célula vazia             colunas Y, Z e AA</pre>
+</section>
+
+<section id="estranhas">
+  <h2><span class="marca">09</span>Decisões que parecem estranhas e não são</h2>
+  <p>Se você for mexer no programa, leia esta seção antes. Cada item aqui parece um
+  descuido e é o contrário.</p>
+
+  <h3>Só texto lido conta como prova</h3>
+  <p>O modelo de visão nunca confirma "Conforme" sozinho. Quando ele sugere algo que
+  nenhum OCR confirmou, a peça vai para <strong>Requer Verificação</strong>. Ele já
+  alucinou um "18+" numa imagem que era print de conversa.</p>
+  <p>Isso salvou o programa em 29/08: um defeito de amostragem estava fazendo perder a
+  menção à portaria numa peça real. Sem essa regra, ela teria virado <strong>Não
+  Conforme</strong>, que é acusação indevida a um influenciador. Com a regra, virou
+  pedido de conferência.</p>
+
+  <h3>A coluna de criança diz "não verificado" em vez de ficar vazia</h3>
+  <p>A checagem está desligada desde 28/08/2026, porque consumia metade do tempo e nunca
+  gerou um alerta em 445 linhas. Célula vazia seria lida como "conferido e sem criança",
+  que é diferente de "não foi conferido".</p>
+
+  <h3>Não existe botão de ignorar o bloqueio do Instagram</h3>
+  <p>Existe a função, sem botão, de propósito. Botão de "ignorar bloqueio" convida ao
+  clique por impaciência, que é exatamente o comportamento que marcou duas contas em
+  agosto de 2026.</p>
+
+  <h3>Nada é apagado do Drive de forma permanente</h3>
+  <p>Só lixeira, que guarda 30 dias. Em 26/08/2026 dois arquivos foram apagados de vez e
+  não houve como recuperar.</p>
+
+  <h3>A automação só escreve em célula vazia</h3>
+  <p>Se alguém anotou algo à mão, a anotação da pessoa manda. Para reprocessar, apaga-se a
+  célula. É previsível e não exige controle de versão nenhum.</p>
+
+  <h3>Captura ampla de exceção, em vários lugares</h3>
+  <p>Quando o modelo de visão cai, o leitor de texto trava ou o Drive recusa, a linha vira
+  <strong>Requer Verificação</strong> em vez de derrubar o lote inteiro. É falha segura,
+  adotada depois de rodadas longas caírem sem ninguém por perto. <strong>Uma ferramenta de
+  análise estática vai sinalizar esses trechos; corrigi-los sem ler o motivo transforma
+  degradação controlada em interrupção total.</strong></p>
+
+  <h3>O programa falha quando não acha a pasta do influenciador</h3>
+  <p>Decidido em 29/08/2026: o programa cria o que ele mesmo sabe nomear com certeza (bet,
+  ano, mês) e <strong>nunca o que uma pessoa nomeou</strong>. Falhar é o que impede encher
+  o Drive do Marketing de pasta duplicada.</p>
+</section>
+
+<section id="ondemexer">
+  <h2><span class="marca">10</span>Onde mexer para cada tipo de mudança</h2>
+  <div class="rolagem">
+    <table>
+      <thead><tr><th>Se você quiser…</th><th>Mexa em</th></tr></thead>
+      <tbody>
+        <tr><td>Mudar o que a portaria exige, ou a data de virada</td><td class="mono">validar_avisos_portaria136.py<br>(DATA_VIGENCIA_MINISTERIO_FAZENDA e as REGEX_*)</td></tr>
+        <tr><td>Mudar quantos quadros olhar por vídeo</td><td class="mono">validar_avisos_portaria136.QUADROS_POR_VIDEO</td></tr>
+        <tr><td>Religar a checagem de criança</td><td class="mono">validar_avisos_portaria136.CHECAR_CRIANCA_VISUAL</td></tr>
+        <tr><td>Mudar quantas análises ao mesmo tempo</td><td class="mono">pipeline_influenciadores.TRABALHADORES_PADRAO</td></tr>
+        <tr><td>Mudar o teto diário ou a pausa do Instagram</td><td class="mono">fluxo_downloads.py<br>(LIMITE_DIARIO_INSTAGRAM, PAUSA_INSTAGRAM_*)</td></tr>
+        <tr><td>Trocar a estrutura de pastas do Drive</td><td class="mono">variável de ambiente LAYOUT_PASTAS_DRIVE</td></tr>
+        <tr><td>Apontar para outra planilha ou outra pasta</td><td class="mono">arquivos em teste_watch_folder/<br>(não é código)</td></tr>
+        <tr><td>Mudar cor ou fonte</td><td class="mono">estilo.py e .streamlit/config.toml</td></tr>
+        <tr><td>Mudar quem pode alcançar a tela</td><td class="mono">.streamlit/config.toml (server.address)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="fragil">
+  <h2><span class="marca">11</span><span class="etiqueta frag">Frágil</span> O que quebra, e o que não quebra</h2>
+  <p>O programa tem duas metades com sustentabilidade bem diferente, e é honesto separar.</p>
+
+  <h3>Sustentável</h3>
+  <p>A análise trabalha em cima de arquivos. ffmpeg, os leitores de texto, o modelo de
+  visão e a transcrição não dependem de terceiro hostil. Vai continuar funcionando por
+  anos, e melhora se ganhar hardware.</p>
+
+  <h3>Frágil por natureza</h3>
+  <p>O download depende do Instagram, que muda o que quer sem avisar. O acesso anônimo já
+  morreu, medido em 16 links com 14 falhas. O que funciona hoje pode não funcionar no mês
+  que vem, e isso não tem conserto de engenharia.</p>
+  <div class="caixa">
+    <p><strong>Mas o plano B já existe e está construído.</strong> O download é desacoplado
+    de todo o resto: se todo download automático parar, a pessoa baixa por qualquer meio e
+    arrasta o arquivo na tela. Renomear, organizar entre 266 pastas, registrar e analisar
+    continuam funcionando. Que é justamente o trabalho chato que o programa existe para
+    tirar da mão dela.</p>
+  </div>
+  <p>
+    Detalhe que decorre disso: ao travar as versões das bibliotecas, <strong>o
+    <code>yt-dlp</code> é a exceção</strong>. Ele é exatamente quem persegue as mudanças do
+    Instagram, e congelar a versão dele é congelar o programa numa versão que vai parar de
+    funcionar.
+  </p>
+
+  <h3>Lacunas conhecidas</h3>
+  <ul>
+    <li><strong>Nenhum teste automatizado.</strong> É a maior. Cada correção deste programa
+    nasceu de um problema real, e nenhuma está protegida contra voltar</li>
+    <li><strong>Não existe login.</strong> Quem alcança o endereço usa as credenciais que
+    estiverem no servidor</li>
+    <li><strong>Credenciais em texto puro</strong> na pasta, fora do repositório</li>
+    <li><strong>Caminhos fixos de Windows</strong> para o leitor de texto e o ffmpeg, que
+    impedem subir num servidor Linux sem ajuste</li>
+    <li><strong>Ambiente não reproduzível</strong>: 117 pacotes instalados e nenhuma versão
+    registrada</li>
+  </ul>
+</section>
+
+<section id="numeros">
+  <h2><span class="marca">12</span>Números medidos, e onde foram medidos</h2>
+  <p>Tudo abaixo foi medido nesta máquina, um processador de notebook de 15W sem placa de
+  vídeo dedicada. Em hardware diferente, os números mudam.</p>
+  <div class="rolagem">
+    <table>
+      <thead><tr><th>O quê</th><th>Medido</th><th>Quando</th></tr></thead>
+      <tbody>
+        <tr><td>Vídeo em conformidade, análise completa</td><td class="mono">32s</td><td>29/08</td></tr>
+        <tr><td>Vídeo sem conteúdo de aposta (pior caso)</td><td class="mono">240,7s</td><td>29/08</td></tr>
+        <tr><td>Modelo de visão, primeira pergunta num quadro</td><td class="mono">73 a 91s</td><td>29/08</td></tr>
+        <tr><td>Modelo de visão, perguntas seguintes no mesmo quadro</td><td class="mono">4 a 6s</td><td>29/08</td></tr>
+        <tr><td>Transcrição de áudio</td><td class="mono">1,6x a duração</td><td>29/08</td></tr>
+        <tr><td>Ganho de 1 para 2 análises simultâneas</td><td class="mono">1,68x</td><td>28/08</td></tr>
+        <tr><td>Ganho de 2 para 3</td><td class="mono">nenhum</td><td>28/08</td></tr>
+        <tr><td>Gravações perdidas sem trava, 6 processos</td><td class="mono">48%</td><td>29/08</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="caixa">
+    <strong>Cuidado ao medir o modelo de visão.</strong> O Ollama guarda o processamento de
+    imagens já vistas, e de mais de uma por vez. Duas medições saíram erradas por isso, 130s
+    e 147s onde o certo era 240s. Para número limpo é preciso derrubar o processo
+    <code>llama-server</code> e recarregar o modelo com uma pergunta sem imagem antes de
+    cronometrar.
+  </div>
+</section>
+
+</main>
+</div>
+
+<footer class="rodape">
+  <span>Anatomia do programa &middot; versão 1.0 &middot; 29/08/2026 &middot; Auditoria Interna EGB</span>
+  <span>Contagens de linha medidas em 29/08/2026. O documento envelhece junto com o código:
+  ao mudar a estrutura, atualize aqui também.</span>
+</footer>
+
+</div>

@@ -1,0 +1,169 @@
+# ------------------------------------------------------------------
+# O QUE PODE SUBIR PARA O REPOSITÓRIO
+#
+# Criado em 29/08/2026, ANTES do primeiro commit, e isso não é detalhe: o git
+# guarda histórico. Credencial que entre uma vez fica lá para sempre, mesmo
+# apagada depois, e a única correção de verdade passa a ser revogar a
+# credencial e gerar outra.
+#
+# ESTE ARQUIVO FUNCIONA AO CONTRÁRIO DO NORMAL. Em vez de listar o que não
+# sobe, ele bloqueia tudo e libera só o que é programa. A escolha é
+# proposital: esta pasta mistura código com dado de auditoria de verdade
+# (análise de chaves PIX, contas a pagar, comissões de influenciadores), e
+# numa lista de bloqueio basta esquecer um padrão para vazar. Numa lista de
+# permissão, esquecer significa não subir, que é o erro seguro.
+#
+# ONDE CRIAR O REPOSITÓRIO: aqui, em producao/analises, e NÃO na raiz de
+# Documents/Auditoria. A raiz tem mais de 1 GB de dado de auditoria em outras
+# pastas, e um comando errado lá sobe tudo.
+# ------------------------------------------------------------------
+
+# Regra 1: por padrão, nada sobe.
+*
+
+# Regra 2: sobe só o que é programa.
+!.gitignore
+!*.py
+!*.md
+!*.bat
+# A lista de dependências travadas. Arquivo .txt fica bloqueado como regra
+# (é o formato dos cookies e dos identificadores de planilha), então este
+# precisa ser liberado pelo nome. Percebido em 30/08/2026 ao ver que ele não
+# tinha entrado no commit.
+!requirements.txt
+# Resultado do pip-audit contra as versões travadas acima (item 01 do parecer
+# de segurança de 29/08/2026, executado em 04/09/2026). É rastro de auditoria,
+# não segredo: nenhuma credencial mora nele.
+!pip-audit-relatorio.txt
+# HTML fica bloqueado como regra, porque os painéis de auditoria embutem dado
+# real dentro do arquivo. Este é a exceção: é documentação do código, e precisa
+# viajar junto com ele para não envelhecer separado.
+!ARQUITETURA.html
+!*.ps1
+!pages/
+!pages/*.py
+# Testes automatizados. O primeiro nasceu em 30/08/2026, provando o mecanismo
+# de download que não deu para verificar contra o Instagram.
+!testes/
+!testes/*.py
+# Ferramentas de conferência (02/09/2026). Precisaram ser liberadas pelo nome,
+# como toda pasta nova: a regra 1 bloqueia diretório também, então o git nem
+# desce nele para ver os .py. A lista de permissão fez o que devia, e pegou o
+# erro na hora: o primeiro commit delas passou levando só o teste.
+!ferramentas/
+!ferramentas/*.py
+!ferramentas/*.md
+!_drive_credenciais/
+!_drive_credenciais/*.py
+!.streamlit/
+# PELO NOME, e não com *.toml (corrigido em 30/08/2026). O curinga liberava
+# qualquer .toml dessa pasta, e é exatamente ali que o secrets.toml do login vai
+# morar, com client_secret e cookie_secret dentro. O arquivo ainda não existe;
+# a liberação larga estava esperando por ele. Achado por teste automatizado
+# antes de o arquivo ser criado, que é a única hora em que dá para corrigir sem
+# reescrever histórico.
+!.streamlit/config.toml
+# O baixador local é programa e precisa ser versionado. Sem esta liberação
+# explícita a pasta inteira caía na regra 1 e ficava de fora (percebido na
+# conferência antes do primeiro commit, em 29/08/2026).
+!baixador_local/
+!baixador_local/*.py
+!baixador_local/*.bat
+!baixador_local/*.md
+# Mas o que o baixador PRODUZ não sobe: vídeo baixado e contagem do dia.
+baixador_local/videos/
+baixador_local/_contagem_do_dia.json
+
+# Regra 2b: esta pasta guarda também scripts de OUTRAS auditorias, e eles
+# ficam de fora deste repositório.
+#
+# Decidido em 29/08/2026, na conferência antes do primeiro commit. O motivo é
+# custódia: histórico de git não se apaga, então tudo o que entrar aqui vai
+# junto para onde o repositório for, para sempre. Auditoria de chaves PIX, de
+# contas a pagar e de gasto com Uber não têm por que viajar com o programa de
+# influenciadores.
+#
+# Eles continuam na pasta, funcionando, apenas não versionados aqui. O certo,
+# quando houver tempo, é cada auditoria ter a sua própria pasta.
+analise_chaves_pix.py
+extrair_achado13_chave_pix.py
+classificar_achado01_lastro_documental.py
+revalidar_achado01_financeiro.py
+montar_dados_v3_financeiro.py
+extrair_dashboard_contas_a_pagar.py
+gerar_dashboard_contas_a_pagar.py
+gerar_dashboard_contas_a_pagar_v2_achado13.py
+gerar_dashboard_contas_a_pagar_v3.py
+verificar_dashboard_v3.py
+testar_salvar_reabrir_v3.py
+panorama_uber_atendimento_julho2026.py
+gerar_proposta_disponibilizacao.py
+_strip_login.py
+
+# Estes dois são da AUDITORIA de influenciadores (os painéis da RA), não do
+# programa que a automatiza. Ficam de fora pelo mesmo critério.
+extrair_dashboard_influenciadores_v2.py
+extrair_dashboard_comissoes_influenciadores.py
+
+# Regra 3: reforço explícito para o que nunca pode subir, mesmo que alguém
+# mexa nas regras acima sem perceber a consequência.
+
+# Credenciais do Google. São tokens de atualização com escopo amplo: quem tem
+# o arquivo alcança tudo o que a conta enxerga, sem senha e sem segundo fator.
+_drive_credenciais/*token*.json
+_drive_credenciais/*secret*.json
+_drive_credenciais/*credential*.json
+*oauth*.json
+
+# Segredos do login da empresa. O secrets.toml guarda client_secret e
+# cookie_secret do registro no Entra ID; quem tem os dois se passa pelo
+# programa na volta do login. Bloqueado aqui além da liberação pelo nome lá em
+# cima, porque este é o tipo de arquivo que alguém cria às pressas no dia de
+# subir o servidor.
+.streamlit/secrets.toml
+**/secrets.toml
+
+# Estado, cookies e identificadores. Os cookies do Instagram equivalem a estar
+# logado na conta.
+teste_watch_folder/
+
+# Dado de auditoria e material analisado.
+*.xlsx
+*.xls
+*.csv
+*.json
+*.mp4
+*.mov
+*.webm
+*.m4v
+*.jpg
+*.jpeg
+*.png
+
+# Cópias de segurança e arquivos de trabalho.
+*.bak
+*.bak_*
+*.tmp
+*.trava
+__pycache__/
+*.pyc
+*.pyo
+
+# ------------------------------------------------------------------
+# CONFERIR ANTES DO PRIMEIRO ENVIO
+#
+# 1. Rode `git status` e leia a lista inteira, arquivo por arquivo. Se
+#    aparecer algo que não seja programa, pare e ajuste este arquivo antes de
+#    fazer o commit.
+# 2. O repositório precisa ser PRIVADO. Este é código de auditoria interna da
+#    EGB.
+# 3. Os documentos .md deste projeto (README.md e PROMPT_CONTINUACAO.md)
+#    trazem identificadores de planilhas e o nome da conta usada no Instagram.
+#    Identificador de planilha não é credencial, quem tem só o número continua
+#    precisando de permissão, mas é informação interna. Vale decidir se sai
+#    dos documentos e passa a viver só em configuração local.
+# 4. Guardar código de auditoria da EGB em conta pessoal do GitHub, mesmo em
+#    repositório privado, é decisão que passa por Segurança da Informação e
+#    pelo Jurídico. Isto aqui reduz o risco técnico do vazamento acidental;
+#    não substitui essa validação.
+# ------------------------------------------------------------------

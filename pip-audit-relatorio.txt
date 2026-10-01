@@ -1,0 +1,21 @@
+Relatório de pip-audit — dependências travadas em requirements.txt
+
+Rodado em: 04/09/2026
+Comando: python -m pip_audit -r requirements.txt --desc
+Ferramenta: pip-audit (instalada nesta mesma data)
+
+Resultado: No known vulnerabilities found
+
+Contexto: item 01 da sequência proposta no "Parecer sobre o SAST proposto para
+a automação de influenciadores" (29/08/2026, Auditoria Interna para Segurança
+da Informação). O parecer identificou 117 pacotes instalados sem
+requirements.txt como o item de maior retorno da lista original. As versões já
+estavam travadas no requirements.txt (feito antes desta data); faltava rodar o
+pip-audit sobre elas, que é o que este arquivo registra.
+
+Isto não é declaração de que o projeto está livre de vulnerabilidade: é o
+resultado desta ferramenta, nesta data, contra a base de dados que ela consulta
+naquele momento. Vulnerabilidade nova pode ser descoberta depois da data acima
+em qualquer um dos pacotes listados. Recomenda-se rodar de novo antes de cada
+subida relevante (ex: ida para o servidor), e não tratar este arquivo como
+validade permanente.
